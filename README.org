@@ -1,0 +1,64 @@
+#+TITLE: README
+
+* Getting started with =hubble= (Purdue only)
+For Purdue users, we have the =hubble= cluster setup for our use, allowing us to use more computing power without taking up resources on the =mu2egpvm= machines.
+** Prerequisites for =hubble=
+The =hubble= cluster is accessible via =ssh=, but not through direct login. We have to login to the =planck.physics.purdue.edu= node first. To do this, it is recommended to setup a configuration file for =ssh=, which will greatly simplify things in this scenario.
+*** =ssh= config
+**** Log into =planck=
+You can manage logins to any number hosts via the =~/.ssh/config= file on your computer (e.g. your laptop). The =ssh= config file also handles arguments to the =ssh= command so you don't have to remember them. Here is a minimal example for logging into the =planck= node at Purdue, which is needed in order to login to =hubble=:
+#+begin_src ssh
+Host planck
+  Hostname planck.physics.purdue.edu
+  ForwardX11 yes
+  ForwardX11Trusted yes
+#+end_src
+
+Add the above lines to =~/.ssh/config= and reload a terminal window. Then type =ssh YOUR_USERNAME@planck= where =YOUR_USERNAME= is your Purdue account username, which should be your last name and a number. You will then be prompted for your Purdue password. Enter it, and you can login to =planck=. This shortcut is the same as executing the command =ssh -XY YOUR_USERNAME@planck.physics.purdue.edu=.
+**** Log into =hubble=
+After logging into =planck=, you can log into =hubble= with =ssh YOUR_USERNAME@hubble=. You will be asked for your Purdue password again, and then you will be able to login.
+There is a way to make this easier with your =ssh= config file. Add the following to =~/.ssh/config= file on your personal computer (not on =planck= or =hubble=):
+#+BEGIN_SRC ssh
+Host hubble
+  Hostname hubble.physics.purdue.edu
+  ForwardX11 yes
+  ForwardX11Trusted yes
+  ProxyCommand ssh YOUR_USERNAME@planck -W %h:%p #use your Purdue username here
+#+END_SRC
+
+Now, in a new shell, type =ssh YOUR_USERNAME@hubble=, and you should get a password prompt twice; once to login to =planck= and then again to login to =hubble=. The lines we added to =~/.ssh/config= behave such that when you run =ssh YOUR_USERNAME@hubble=, =ssh= knows to first open an =ssh= connection to =planck= and then use that to allow you login to =hubble=. To make things easier, add a field in both =Host hubble= and =Host planck= in your =~/.ssh/config= file to add =User YOUR_USERNAME=. Now you won't have to specify your username; you can just type =ssh hubble= and all you will need is your password. Your =~/.ssh/config= file should look something like this now:
+#+BEGIN_SRC ssh
+Host planck
+  User YOUR_USERNAME
+  Hostname planck.physics.purdue.edu
+  ForwardX11 yes
+  ForwardX11Trusted yes
+
+Host hubble
+  User YOUR_USERNAME
+  Hostname hubble.physics.purdue.edu
+  ForwardX11 yes
+  ForwardX11Trusted yes
+  ProxyCommand ssh planck -W %h:%p
+#+END_SRC
+
+*** =ssh Keys=
+You can further simplify things by generating an =ssh= key to login to both =planck= and =hubble= so that you don't have to provide your password at all. Take a look at the guide by the Arch linux community at [[https://wiki.archlinux.org/index.php/SSH_keys]].
+* Setting up your =hubble= environment
+You will need a few things setup in order to start working with Mu2e Offline software on =hubble=. First, make sure you are comfortable with a text editor such as =vim= or =emacs= (both are available on =hubble=).
+** Work and data directories
+The total storage space available in your =$HOME= (also =~/=) directory is *very limited*, as we all share 120 Gb of storage. However, there is ample space available in the =/project/hubble= directory. Inside of =/project/hubble=, you will find =work/= and =data/= directories. Make a directory for yourself in each space (e.g. =mkdir -p /project/hubble/work/YOUR_USERNAME && mkdir -p /project/hubble/data/YOUR_USERNAME=).
+*** Tip!
+Consider making a symlink via =ln -s= from your home directory to these places, that way you don't have to remember the prefixes, and it behaves the same as if they were in your home directory. For example, for my =data/= directory, I ran =ln -s /project/hubble/work/hedges7/ ~/work=, which means a path of =~/work= actually points to my =/project/hubble/work/= space.
+* Compiling the =Offline=
+Now that you have your workspaces setup, let's go ahead and install a version of the Mu2e =Offline= software for you to use. I recommend installing it somewhere in your =/project/hubble/work= space to make it easier to find (you can think if =/project/hubble/work= as similar to =/mu2e/app/users= on the =mu2egpvm= nodes at Fermilab).
+
+Once you have a place in your =work= directory, =cd= into it and clone the =Offline= with =git clone https://github.com/Mu2e/Offline.git= and wait for it to finish. Then, =cd Offline= and setup your Mu2e environment by doing the following:
+#+BEGIN_SRC sh
+source /cvmfs/mu2e.opensciencegrid.org/setupmu2e-art.sh
+setup mu2e
+source setup.sh
+#+END_SRC
+=setup.sh= is found in the =Offline= directory you just cloned. Now you should be ready to compile, and here we will use =hubble= to our advantage and compile with 16 cores. Do this by running =scons -j16=. It should take about 10 minutes. Make sure there are no errors by running =mu2e -c HelloWorld/test/hello.fcl=. The last line should read =Art has completed and will exit with status 0.=
+* Next steps
+** Coming soon!
