@@ -51,6 +51,7 @@ The total storage space available in your =$HOME= (also =~/=) directory is *very
 *** Tip!
 Consider making a symlink via =ln -s= from your home directory to these places, that way you don't have to remember the prefixes, and it behaves the same as if they were in your home directory. For example, for my =data/= directory, I ran =ln -s /project/hubble/work/hedges7/ ~/work=, which means a path of =~/work= actually points to my =/project/hubble/work/= space.
 * Compiling the =Offline=
+** Clone =Offline= from GitHub
 Now that you have your workspaces setup, let's go ahead and install a version of the Mu2e =Offline= software for you to use. I recommend installing it somewhere in your =/project/hubble/work= space to make it easier to find (you can think if =/project/hubble/work= as similar to =/mu2e/app/users= on the =mu2egpvm= nodes at Fermilab).
 
 Once you have a place in your =work= directory, =cd= into it and clone the =Offline= with =git clone https://github.com/Mu2e/Offline.git= and wait for it to finish. Then, =cd Offline= and setup your Mu2e environment by doing the following:
@@ -59,6 +60,14 @@ source /cvmfs/mu2e.opensciencegrid.org/setupmu2e-art.sh
 setup mu2e
 source setup.sh
 #+END_SRC
-=setup.sh= is found in the =Offline= directory you just cloned. Now you should be ready to compile, and here we will use =hubble= to our advantage and compile with 16 cores. Do this by running =scons -j16=. It should take about 10 minutes. Make sure there are no errors by running =mu2e -c HelloWorld/test/hello.fcl=. The last line should read =Art has completed and will exit with status 0.=
+=setup.sh= is found in the =Offline= directory you just cloned. Note that you need to do these steps every time you login or open a new shell.
+** Clone =Stntuple= from GitHub
+We will also be using =Stntuple=, which is a Mu2e tool for generating histograms of simulated particles at various points in the =Offline=. From inside the =Offline= directory, run the following:
+#+BEGIN_SRC sh
+git clone https://github.com/Mu2e/Stntuple.git
+Stntuple/scripts/build_config
+#+END_SRC
+** Compile
+Now you should be ready to compile, and here we will use =hubble= to our advantage and compile with 16 cores. Do this by running =scons -j16=. It should take about 15-20 minutes. Make sure there are no errors by running =mu2e -c HelloWorld/test/hello.fcl=. The last line should read =Art has completed and will exit with status 0.=
 * Next steps
 ** Coming soon!
